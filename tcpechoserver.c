@@ -94,7 +94,7 @@ int main(int argc, char** argv) {
 	char* buffer = calloc(MAX_MESSAGE, sizeof(char));
 	char* tempBuffer = calloc(MAX_MESSAGE, sizeof(char));
 	char* echoTag = "Dan responds: ";
-	struct sockaddr callingDevice;
+	struct sockaddr_in callingDevice;
 	socklen_t callingDevice_len;
 	int bytes_read;
 	int echoed;
@@ -103,7 +103,8 @@ int main(int argc, char** argv) {
     while (1) {			
 		// hang in accept and wait for connection
 		printf("====Waiting====\n");
-		if ( (connection = accept(sock, (struct sockaddr *)&callingDevice, &callingDevice_len) ) < 0 ) 
+		if ((connection = accept(sock, (struct sockaddr*)&callingDevice,
+		    &callingDevice_len)) < 0) 
 		{
 			perror("Error calling accept");
 			exit(-1);
@@ -141,7 +142,9 @@ int main(int argc, char** argv) {
 			printf("Received message\n");
 
 			// put message to console
-			printf("Message: %s From:\n", buffer);
+			printf("Message: %s From: %s %d\n", buffer,
+			       inet_ntoa(callingDevice.sin_addr),
+				   ntohs(callingDevice.sin_port));
 
 			// tack on a tag to the echo message
 			strcpy(tempBuffer, echoTag);
@@ -149,7 +152,7 @@ int main(int argc, char** argv) {
 			strcpy(buffer, tempBuffer);
 
 			// send it back to client
-			if ( (echoed = write(connection, buffer, bytes_read + 1)) < 0 )
+			if ( (echoed = write(connection, buffer, bytes_read + 15)) < 0 )
 			{
 				perror("Error sending echo");
 				exit(-1);
