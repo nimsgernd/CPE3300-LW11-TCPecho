@@ -103,12 +103,25 @@ int main(int argc, char** argv) {
     while (1) {			
 		// hang in accept and wait for connection
 		printf("====Waiting====\n");
-		if ((connection = accept(sock, (struct sockaddr*)&callingDevice,
-		    &callingDevice_len)) < 0) 
+		connection = accept(sock, (struct sockaddr*)&callingDevice, &callingDevice_len);
+		if (connection < 0)
 		{
-			perror("Error calling accept");
-			exit(-1);
-		}		
+			perror("ERROR on accept");
+		}
+		int pid = fork();
+		if (pid < 0)
+		{
+			perror("ERROR on fork");
+		}
+		if (pid == 0)
+		{
+				
+		// if ((connection = accept(sock, (struct sockaddr*)&callingDevice,
+		//     &callingDevice_len)) < 0) 
+		// {
+		// 	perror("Error calling accept");
+		// 	exit(-1);
+		// }		
 		
 		// ready to r/w - another loop - it will be broken when
 		// the connection is closed
@@ -163,6 +176,9 @@ int main(int argc, char** argv) {
 			}
 				
 		}  // end of accept inner-while
+		close(sock);
+		exit(0);
+		}
     }	// end of outer loop
 	free(buffer);
 	// will never get here
