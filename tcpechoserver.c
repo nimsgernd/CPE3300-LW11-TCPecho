@@ -115,6 +115,7 @@ int main(int argc, char** argv) {
 		}
 		if (pid == 0)
 		{		
+			close(sock);
 			// ready to r/w - another loop - it will be broken when
 			// the connection is closed
 			while(1)
@@ -170,6 +171,10 @@ int main(int argc, char** argv) {
 			}  // end of accept inner-while
 			close(sock);
 			exit(0);
+		}
+		else
+		{
+			close(connection);
 		}
     }	// end of outer loop
 	free(buffer);
