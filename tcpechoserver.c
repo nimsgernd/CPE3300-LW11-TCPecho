@@ -114,70 +114,62 @@ int main(int argc, char** argv) {
 			perror("ERROR on fork");
 		}
 		if (pid == 0)
-		{
-				
-		// if ((connection = accept(sock, (struct sockaddr*)&callingDevice,
-		//     &callingDevice_len)) < 0) 
-		// {
-		// 	perror("Error calling accept");
-		// 	exit(-1);
-		// }		
-		
-		// ready to r/w - another loop - it will be broken when
-		// the connection is closed
-		while(1)
-		{
-			buffer[0] = '\0'; 	// guarantee a null here to break out on a
-								// disconnect
-
-			// read message								
-			bytes_read = read(connection,buffer,MAX_MESSAGE-1);
-						
-			if (bytes_read == 0)
-			{	// socket closed
-				printf("====Client Disconnected====\n");
-				close(connection);
-				break;  // break the inner while loop
-			}
-
-			// make sure buffer has null temrinator
-			buffer[bytes_read] = '\0';
-						
-			// see if client wants us to disconnect
-			if (strncmp(buffer,"quit",4)==0)
+		{		
+			// ready to r/w - another loop - it will be broken when
+			// the connection is closed
+			while(1)
 			{
-				printf("====Server Disconnecting====\n");
-				close(connection);
-				break;  // break the inner while loop
-			}
+				buffer[0] = '\0'; 	// guarantee a null here to break out on a
+									// disconnect
+
+				// read message								
+				bytes_read = read(connection,buffer,MAX_MESSAGE-1);
+						
+				if (bytes_read == 0)
+				{	// socket closed
+					printf("====Client Disconnected====\n");
+					close(connection);
+					break;  // break the inner while loop
+				}
+
+				// make sure buffer has null temrinator
+				buffer[bytes_read] = '\0';
+						
+				// see if client wants us to disconnect
+				if (strncmp(buffer,"quit",4)==0)
+				{
+					printf("====Server Disconnecting====\n");
+					close(connection);
+					break;  // break the inner while loop
+				}
 			
-			// print info to console
-			printf("Received message\n");
+				// print info to console
+				printf("Received message\n");
 
-			// put message to console
-			printf("Message: %s From: %s %d\n", buffer,
-			       inet_ntoa(callingDevice.sin_addr),
-				   ntohs(callingDevice.sin_port));
+				// put message to console
+				printf("Message: %s From: %s %d\n", buffer,
+			       	   inet_ntoa(callingDevice.sin_addr),
+				   	   ntohs(callingDevice.sin_port));
 
-			// tack on a tag to the echo message
-			strcpy(tempBuffer, echoTag);
-			strcat(tempBuffer, buffer);
-			strcpy(buffer, tempBuffer);
+				// tack on a tag to the echo message
+				strcpy(tempBuffer, echoTag);
+				strcat(tempBuffer, buffer);
+				strcpy(buffer, tempBuffer);
 
-			// send it back to client
-			if ( (echoed = write(connection, buffer, bytes_read + 15)) < 0 )
-			{
-				perror("Error sending echo");
-				exit(-1);
-			}
-			else
-			{			
-				printf("Bytes echoed: %d\n",echoed);
-			}
+				// send it back to client
+				if ( (echoed = write(connection, buffer, bytes_read + 15)) < 0 )
+				{
+					perror("Error sending echo");
+					exit(-1);
+				}
+				else
+				{			
+					printf("Bytes echoed: %d\n",echoed);
+				}
 				
-		}  // end of accept inner-while
-		close(sock);
-		exit(0);
+			}  // end of accept inner-while
+			close(sock);
+			exit(0);
 		}
     }	// end of outer loop
 	free(buffer);
